@@ -19,26 +19,36 @@ contract CBORTesting {
 
     bool private _state = false;
 
+    /**
+     * CBOR Decoding utilities
+     */
     function testDecodeCBORMapping(bytes memory encoding) public view returns (bytes[2][] memory decodedData) {
         return CBORDecoding.decodeMapping(encoding);
     }
 
-    // function testDecodeCBORMappingGetValue(bytes memory encoding, bytes memory key) public view returns (bytes memory value) {
-    //     return CBORDecoding.decodeMappingGetValue(encoding, key);
-    // }
+    function testDecodeCBORMappingGetValue(bytes memory encoding, bytes memory key) public view returns (bytes memory value) {
+        return CBORDecoding.decodeMappingGetValue(encoding, key);
+    }
 
-    function testDecodeCBORPrimitive(bytes memory encoding) public view returns (bytes memory decodedData) {
-        return CBORDecoding.decodePrimitive(encoding);
+    function testDecodeCBORArrayGetIndex(bytes memory encoding, bytes memory key) public view returns (uint64 index) {
+        return CBORDecoding.decodeArrayGetIndex(encoding, key);
+    }
+
+    function testDecodeCBORArrayGetItem(bytes memory encoding, uint64 index) public view returns (bytes memory value) {
+        return CBORDecoding.decodeArrayGetItem(encoding, index);
     }
 
     function testDecodeCBORArray(bytes memory encoding) public view returns (bytes[] memory decodedData) {
         return CBORDecoding.decodeArray(encoding);
     }
 
-    function statefulTestDecodeCBORMapping(bytes memory encoding) public returns (bytes[2][] memory decodedData) {
-        _state = !_state; // Call some state to measure how expensive our computations are
-        return CBORDecoding.decodeMapping(encoding);
+    function testDecodeCBORPrimitive(bytes memory encoding) public view returns (bytes memory decodedData) {
+        return CBORDecoding.decodePrimitive(encoding);
     }
+
+    /**
+     * ByteParser utilities
+     */
 
     function testBytesToNegativeInt128(bytes memory encoding) public view returns (int128) {
         return ByteParser.bytesToNegativeInt128(encoding);
@@ -58,6 +68,44 @@ contract CBORTesting {
 
     function testBytesToBool(bytes memory encoding) public view returns (bool state) {
         return ByteParser.bytesToBool(encoding);
+    }
+
+    /**
+     * Benchmark how expensive decoding is (with state changes)
+     * Call some state to measure how expensive our computations are
+     */
+    function baselineStateChange() public {
+        _state = !_state;
+    }
+
+    function statefulTestDecodeCBORMapping(bytes memory encoding) public {
+        _state = !_state;
+        CBORTesting.testDecodeCBORMapping(encoding);
+    }
+
+    function statefulTestDecodeCBORMappingGetValue(bytes memory encoding, bytes memory key) public {
+        _state = !_state;
+        CBORTesting.testDecodeCBORMappingGetValue(encoding, key);
+    }
+
+    function statefulTestDecodeCBORArrayGetIndex(bytes memory encoding, bytes memory key) public {
+        _state = !_state;
+        CBORTesting.testDecodeCBORArrayGetIndex(encoding, key);
+    }
+
+    function statefulTestDecodeCBORArrayGetItem(bytes memory encoding, uint64 index) public {
+        _state = !_state;
+        CBORTesting.testDecodeCBORArrayGetItem(encoding, index);
+    }
+
+    function statefulTestDecodeCBORArray(bytes memory encoding) public {
+        _state = !_state;
+        CBORTesting.testDecodeCBORArray(encoding);
+    }
+
+    function statefulTestDecodeCBORPrimitive(bytes memory encoding) public {
+        _state = !_state;
+        CBORTesting.testDecodeCBORPrimitive(encoding);
     }
 
 }
