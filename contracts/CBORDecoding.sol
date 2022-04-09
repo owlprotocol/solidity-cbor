@@ -85,7 +85,7 @@ library CBORDecoding {
     ) {
         uint cursor = 0;
         // See what our field looks like
-        (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, cursor);
+        (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, /*next*/) = Utils.parseField(encoding, cursor);
         require(
             majorType != Spec.MajorType.Array &&
             majorType != Spec.MajorType.Map,
@@ -97,137 +97,170 @@ library CBORDecoding {
         return decodedData;
     }
 
-    // // /**********************
-    // //  * Searching Mappings *
-    // //  *********************/
+    // /**********************
+    //  * Searching Mappings *
+    //  *********************/
 
-    // /**
-    //  * @dev Performs linear search through mapping for a key.
-    //  * This is much cheaper than decoding an entire mapping and
-    //  * then searching through it for a key.
-    //  * @param encoding encoded CBOR bytes data
-    //  * @param searchKey key to search for
-    //  * @return value decoded CBOR data as bytes
-    //  */
-    // function decodeMappingGetValue(
-    //     bytes memory encoding,
-    //     bytes memory searchKey
-    // ) external view returns(
-    //     bytes memory value
-    // ) {
-    //     // Ensure we start with a mapping
-    //     bytes32 searchKeyHash = keccak256(searchKey);
-    //     bool keyFound = false;
+    /**
+     * @dev Performs linear search through mapping for a key.
+     * This is much cheaper than decoding an entire mapping and
+     * then searching through it for a key.
+     * @param encoding encoded CBOR bytes data
+     * @param searchKey key to search for
+     * @return value decoded CBOR data as bytes
+     */
+    function decodeMappingGetValue(
+        bytes memory encoding,
+        bytes memory searchKey
+    ) external view returns(
+        bytes memory value
+    ) {
+        // Search parameters
+        uint cursor;
+        bytes32 searchKeyHash = keccak256(searchKey);
+        bool keyFound = false;
 
-    //     // Scan through our data
-    //     for ((uint cursor, uint itemIdx) = (end, 0); cursor < encoding.length; itemIdx++) {
+        {
+            // Ensure we start with a mapping
+            (Spec.MajorType majorType, uint8 shortCount) = Utils.parseFieldEncoding(encoding[0]);
+            require(majorType == Spec.MajorType.Map, "Object is not a mapping!");
 
-    //         // Skip every other item
-    //         if (!keyFound && itemIdx % 2 != 0)
-    //             continue;
+            // Figure out where cursor should start.
+            if (shortCount == 31)
+                // Indefinite length, start at +1
+                cursor++;
+            else
+                // Get cursor start position (either from count or shortcount)
+                (,cursor,) = DataStructures.getDataStructureItemLength(encoding, cursor, majorType, shortCount);
+        }
 
-    //         // Grab a key and it's value
-    //         (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, cursor);
-    //         bytes memory currentItem = Utils.extractValue(encoding, majorType, shortCount, start, end);
+        // Scan through our data
+        for (uint itemIdx = 0; cursor < encoding.length; itemIdx++) {
 
-    //         // If we found our key last iteration, this is our value (so we can return)
-    //         if (keyFound)
-    //             return currentItem;
+            // Grab a key and it's value
+            (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, cursor);
 
-    //         // This will trigger the item to be returned next time
-    //         if (keccak256(currentItem) == searchKeyHash)
-    //             keyFound = true;
+            // Update our cursor, skip every other item
+            cursor = next;
+            if (!keyFound && itemIdx % 2 != 0)
+                continue;
 
-    //         // Update our cursor
-    //         cursor = next;
+            // Else extract item
+            bytes memory currentItem = Utils.extractValue(encoding, majorType, shortCount, start, end);
 
-    //     }
-    //     // If the key doesn't exist, revert
-    //     revert("Key not found!");
-    // }
+            // If we found our key last iteration, this is our value (so we can return)
+            if (keyFound)
+                return currentItem;
 
-    // /********************
-    //  * Searching Arrays *
-    //  *******************/
+            // This will trigger the item to be returned next time
+            if (keccak256(currentItem) == searchKeyHash)
+                keyFound = true;
 
-    // /**
-    //  * @dev Performs linear search through array for a key.
-    //  * If the data exists, it returns an index and the start/end
-    //  * bytes for the data.
-    //  * @param encoding encoded CBOR bytes data
-    //  * @param searchKey key to search for
-    //  * @return index item position in items where item exists
-    //  * @return dataStart byte position where data starts
-    //  * @return dataEnd byte position where data ends (non-inclusive)
-    //  */
-    // function decodeArrayGetItemIndex(
-    //     bytes memory encoding,
-    //     bytes memory searchKey
-    // ) external view returns(
-    //     uint64 index,
-    //     uint256 dataStart,
-    //     uint256 dataEnd
-    // ) {
-    //     // Ensure we start with a mapping
-    //     bytes32 searchKeyHash = keccak256(searchKey);
+        }
+        // If the key doesn't exist, revert
+        revert("Key not found!");
+    }
 
-    //     // Type check
-    //     (Spec.MajorType majorType, /*uint8 shortCount*/, /*uint start*/, uint end,/* uint next*/) = Utils.parseField(encoding, 0);
-    //     require(majorType == Spec.MajorType.Array, "Object is not an array!");
+    /********************
+     * Searching Arrays *
+     *******************/
 
-    //     // Scan through our data
-    //     for ((uint cursor, uint64 itemIdx) = (end, 0); cursor < encoding.length; itemIdx++) {
+    /**
+     * @dev Performs linear loop through a CBOR array
+     until `searchKey` is found, and returns the corresponding index.
+     * @param encoding encoded CBOR bytes data
+     * @param searchKey key to search for
+     * @return index item position in items where item exists
+    */
+    function decodeArrayGetIndex(
+        bytes memory encoding,
+        bytes memory searchKey
+    ) external view returns(
+        uint64 index
+    ) {
+        // Search parameters
+        uint cursor;
+        bytes32 searchKeyHash = keccak256(searchKey);
 
-    //         // Grab a key and it's value
-    //         (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, cursor);
-    //         bytes memory currentItem = Utils.extractValue(encoding, majorType, shortCount, start, end);
+        {
+            // Ensure we start with a mapping
+            (Spec.MajorType majorType, uint8 shortCount) = Utils.parseFieldEncoding(encoding[0]);
+            require(majorType == Spec.MajorType.Array, "Object is not an array!");
 
-    //         // This will trigger the item to be returned next time
-    //         if (keccak256(currentItem) == searchKeyHash)
-    //             return (itemIdx, start, end);
+            // Figure out where cursor should start.
+            if (shortCount == 31)
+                // Indefinite length, start at +1
+                cursor++;
+            else
+                // Get cursor start position (either from count or shortcount)
+                (,cursor,) = DataStructures.getDataStructureItemLength(encoding, cursor, majorType, shortCount);
+        }
 
-    //         // Update our cursor
-    //         cursor = next;
+        // Scan through our data
+        for (uint64 itemIdx = 0; cursor < encoding.length; itemIdx++) {
 
-    //     }
-    //     // If the key doesn't exist, revert
-    //     revert("Item not found!");
-    // }
+            // Grab a key and it's value
+            (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, cursor);
+            bytes memory currentItem = Utils.extractValue(encoding, majorType, shortCount, start, end);
 
-    // /**
-    //  * @dev Returns the value of the Nth item in an array.
-    //  * @param encoding encoded CBOR bytes data
-    //  * @param index Nth item index to grab
-    //  * @return value decoded CBOR data as bytes
-    //  */
-    // function decodeArrayGetItem(
-    //     bytes memory encoding,
-    //     uint64 index
-    // ) external view returns(
-    //     bytes memory value
-    // ) {
-    //     // // Type check
-    //     // (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, 0);
-    //     // require(majorType == Spec.MajorType.Array, "Object is not an array!");
+            // This will trigger the item to be returned next time
+            if (keccak256(currentItem) == searchKeyHash)
+                return itemIdx;
 
-    //     // Scan through our data
-    //     for ((uint cursor, uint itemIdx) = (end, 0); cursor < encoding.length; itemIdx++) {
+            // Update our cursor
+            cursor = next;
 
-    //         // Grab the current item info, move cursor
-    //         (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, cursor);
-    //         cursor = next;
+        }
+        // If the key doesn't exist, revert
+        revert("Item not found!");
+    }
 
-    //         // If it's not at the index we're looking for, skip
-    //         if (index != itemIdx)
-    //             continue;
+    /**
+     * @dev Returns the value of the Nth item in an array.
+     * @param encoding encoded CBOR bytes data
+     * @param index Nth item index to grab
+     * @return value decoded CBOR data as bytes
+     */
+    function decodeArrayGetItem(
+        bytes memory encoding,
+        uint64 index
+    ) external view returns(
+        bytes memory value
+    ) {
+        // Search parameters
+        uint cursor;
 
-    //         // Otherwise we can grab our item now
-    //         value = Utils.extractValue(encoding, majorType, shortCount, start, end);
-    //         return value;
-    //     }
-    //     // If the index doesn't exist in list, revert
-    //     revert("Item not found!");
-    // }
+        {
+            // Ensure we start with a mapping
+            (Spec.MajorType majorType, uint8 shortCount) = Utils.parseFieldEncoding(encoding[0]);
+            require(majorType == Spec.MajorType.Array, "Object is not an array!");
 
+            // Figure out where cursor should start.
+            if (shortCount == 31)
+                // Indefinite length, start at +1
+                cursor++;
+            else
+                // Get cursor start position (either from count or shortcount)
+                (,cursor,) = DataStructures.getDataStructureItemLength(encoding, cursor, majorType, shortCount);
+        }
+
+        // Scan through our data
+        for (uint itemIdx = 0; cursor < encoding.length; itemIdx++) {
+
+            // Grab the current item info, move cursor
+            (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, cursor);
+
+            // If this is our item, return
+            if (index == itemIdx) {
+                value = Utils.extractValue(encoding, majorType, shortCount, start, end);
+                return value;
+            }
+
+            // Update cursor
+            cursor = next;
+        }
+        // If the index doesn't exist in list, revert
+        revert("Index provided larger than list!");
+    }
 
 }

@@ -41,22 +41,4 @@ library CBORByteUtils {
             value += uint8(data[i])*(2**(8*(data.length-(i+1))));
     }
 
-    // /*
-    //  The following function has been written by Alex Beregszaszi, use it under the terms of the MIT license
-    // */
-    // function copyBytes(bytes memory _from, uint _fromOffset, uint _length, bytes memory _to, uint _toOffset) internal view returns (bytes memory _copiedBytes) {
-    //     uint minLength = _length + _toOffset;
-    //     require(_to.length >= minLength); // Buffer too small. Should be a better way?
-    //     uint i = 32 + _fromOffset; // NOTE: the offset 32 is added to skip the `size` field of both bytes variables
-    //     uint j = 32 + _toOffset;
-    //     while (i < (32 + _fromOffset + _length)) {
-    //         assembly {
-    //             let tmp := mload(add(_from, i))
-    //             mstore(add(_to, j), tmp)
-    //         }
-    //         i += 32;
-    //         j += 32;
-    //     }
-    //     return _to;
-    // }
 }

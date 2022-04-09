@@ -141,16 +141,58 @@ describe("CBOR Decoding", function () {
         expect(decoded).to.deep.equal(toExpectedValue(character));
     });
 
-    // it("Linear Search Decoding", async function () {
-    //     const decoder = await CBORTestingFactory.deploy();
+    it("Linear Search Decoding", async function () {
+        const decoder = await CBORTestingFactory.deploy();
 
-    //     const values = cbor.encode({ a: 1, b: 2, c: 3 });
-    //     // Good call
-    //     await decoder.testDecodeCBORMappingGetValue(values, toHex("a"));
-    //     // Bad call
-    //     const call = decoder.testDecodeCBORMappingGetValue(values, toHex("x"));
-    //     await expect(call).to.be.revertedWith("Key not found!");
-    // });
+        const values = { a: 1, b: 2, c: 3 };
+        // Good call
+        const value = await decoder.testDecodeCBORMappingGetValue(
+            cbor.encode(values),
+            toHex("b")
+        );
+        expect(value).to.equal(toExpectedValue(values.b));
+        // Bad call
+        const call = decoder.testDecodeCBORMappingGetValue(
+            cbor.encode(values),
+            toHex("x")
+        );
+        await expect(call).to.be.revertedWith("Key not found!");
+    });
+
+    it("Linear Get Index", async function () {
+        const decoder = await CBORTestingFactory.deploy();
+
+        const values = ["a", "b", "c", "d"];
+        // Good call
+        const value = await decoder.testDecodeCBORArrayGetIndex(
+            cbor.encode(values),
+            toHex("d")
+        );
+        expect(value).to.equal(values.indexOf("d"));
+        // Bad call
+        const call = decoder.testDecodeCBORArrayGetIndex(
+            cbor.encode(values),
+            toHex("x")
+        );
+        await expect(call).to.be.revertedWith("Item not found!");
+    });
+
+    it("Linear Get Item", async function () {
+        const decoder = await CBORTestingFactory.deploy();
+
+        const values = ["a", "b", "c", "d"];
+        // Good call
+        const value = await decoder.testDecodeCBORArrayGetItem(
+            cbor.encode(values),
+            3
+        );
+        expect(value).to.equal(toExpectedValue(values[3]));
+        // Bad call
+        const call = decoder.testDecodeCBORArrayGetItem(cbor.encode(values), 5);
+        await expect(call).to.be.revertedWith(
+            "Index provided larger than list!"
+        );
+    });
 
     it("Test with game data", async () => {
         const profiles = [
