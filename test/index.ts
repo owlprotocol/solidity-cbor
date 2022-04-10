@@ -11,7 +11,7 @@ import {
     // eslint-disable-next-line node/no-missing-import
 } from "../typechain";
 // eslint-disable-next-line node/no-missing-import
-import dndData from "./dndData";
+import dndData from "./sampleDatasets/dndData";
 import { ContractFactory } from "ethers/lib/ethers";
 
 describe("CBOR Decoding", function () {
@@ -130,7 +130,7 @@ describe("CBOR Decoding", function () {
     });
 
     it("Test Data", async function () {
-        const character = dndData.character;
+        const character = dndData;
         const decoded = await decoder.testDecodeCBORMapping(
             cbor.encode(character),
             {

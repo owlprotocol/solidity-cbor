@@ -16,6 +16,7 @@ import { toHex } from "web3-utils";
 
 const BENCHMARK = process.env.BENCHMARK?.toLowerCase() === "true";
 
+// Enable / disable with `BENCHMARK` environment variable
 (BENCHMARK ? describe.only : describe.skip)("Benchmark gas usage", function () {
     this.timeout(60_000);
 
