@@ -79,15 +79,19 @@ library CBORPrimitives {
             dataEnd = dataStart + shortCount;
             return (dataStart, dataEnd);
         }
+        else if (shortCount == 31) {
+            // No count field, data starts right away.
+            dataStart = cursor + 1;
+            // Loop through our indefinite-length number until break marker
+            (, dataEnd) = Utils.scanIndefiniteItems(encoding, dataStart, 0);
+            return (dataStart, dataEnd);
+        }
         else if (shortCount == 24) countEnd += 1;
         else if (shortCount == 25) countEnd += 2;
         else if (shortCount == 26) countEnd += 4;
         else if (shortCount == 27) countEnd += 8;
         else if (shortCount >= 28 && shortCount <= 30)
-            revert("Invalid RFC Shortcode!");
-        else if (shortCount == 31)
-            // Loop through our indefinite-length number until break marker
-            (, countEnd) = Utils.scanIndefiniteItems(encoding, countStart, 0);
+            revert("Invalid string RFC Shortcode!");
 
         // Calculate the value of the count
         uint256 count = ByteUtils.bytesToUint256(
@@ -98,6 +102,8 @@ library CBORPrimitives {
         // Empty strings cannot exist at this stage (short-circuited above)
         dataStart = countEnd;
         dataEnd = countEnd + count;
+
+        return (dataStart, dataEnd);
     }
 
     /**
@@ -155,19 +161,20 @@ library CBORPrimitives {
         dataEnd = dataStart;
 
         // Predetermined sizes
-        if (shortCount < 20)
-            revert("Invalid RFC Shortcode!");
-        if (shortCount >= 20 && shortCount <= 23)
+        if (shortCount <= 19 || shortCount >= 28)
+            revert("Invalid special RFC Shortcount!");
+        else if (shortCount >= 20 && shortCount <= 23)
             // 20-23 are false, true, null, and undefined (respectively).
             // There's no extra data to grab.
             return (cursor, cursor);
-        else if (shortCount == 24) dataEnd += 1;
-        else if (shortCount == 25) dataEnd += 2;
-        else if (shortCount == 26) dataEnd += 4;
-        else if (shortCount == 27) dataEnd += 8;
-        else if (shortCount >= 28)
-            revert("Invalid RFC Shortcode!");
+        else if (shortCount >= 24 && shortCount <= 27)
+            revert("Unimplemented Shortcount!");
+        // NOTE: - floats could be implemented in the future if needed
+        // else if (shortCount == 24) dataEnd += 1;
+        // else if (shortCount == 25) dataEnd += 2;
+        // else if (shortCount == 26) dataEnd += 4;
+        // else if (shortCount == 27) dataEnd += 8;
 
-        return (dataStart, dataEnd);
+        // return (dataStart, dataEnd);
     }
 }

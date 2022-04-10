@@ -196,7 +196,7 @@ library CBORDataStructures {
         else if (shortCount == 26) countEnd += 4;
         else if (shortCount == 27) countEnd += 8;
         else if (shortCount >= 28 && shortCount <= 30)
-            revert("Invalid RFC Shortcode!");
+            revert("Invalid data structure RFC Shortcode!");
 
         // We have something we need to add up / interpret
         totalItems = ByteUtils.bytesToUint256(

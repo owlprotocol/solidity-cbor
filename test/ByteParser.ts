@@ -1,3 +1,4 @@
+/* eslint-disable node/no-unpublished-import */
 import { assert, expect } from "chai";
 import { ethers } from "hardhat";
 import cbor from "cbor";
@@ -14,7 +15,7 @@ import {
 // eslint-disable-next-line node/no-missing-import
 import { ContractFactory } from "ethers/lib/ethers";
 
-describe("CBOR Data Parsing", function () {
+describe("ByteParser.sol", function () {
     this.timeout(60_000);
 
     let decoder: CBORTesting;
@@ -168,7 +169,7 @@ describe("CBOR Data Parsing", function () {
         assert.equal(decodedVal, val, "decoded value not equal!");
 
         // Test too long
-        val = '123';
+        val = "123";
         decodedBytes = await decoder.testDecodeCBORPrimitive(cbor.encode(val));
         await expect(decoder.testBytesToBool(decodedBytes)).to.revertedWith(
             "Data is not a boolean!"
