@@ -1,5 +1,6 @@
 // eslint-disable-next-line node/no-unpublished-import
 import BN from "bn.js";
+import { utf8ToHex } from "web3-utils";
 // eslint-disable-next-line node/no-missing-import
 import { toProperHex } from "./testUtils";
 
@@ -28,8 +29,7 @@ export const encodeCBOR = (
     const encoding = Buffer.concat(values);
 
     return encoding;
-
-}
+};
 
 const encodeFieldHeader = (majorType: number | BN, shortCount: number | BN) => {
     if (typeof majorType === "number") majorType = new BN(majorType, BASE10);
@@ -67,7 +67,7 @@ const encodeVariable = (value: number | string | BN) => {
     // Type checks
     if (typeof value === "number") value = new BN(value, BASE10);
     else if (typeof value === "string")
-        value = new BN(toProperHex(value), "hex");
+        value = new BN(toProperHex(value).slice(2), "hex");
 
     return value.toBuffer();
 };

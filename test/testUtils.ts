@@ -34,6 +34,8 @@ export const toProperHex = (v: any) => {
     } else if (typeof v === "string") {
         // Strings don't need special padding
         vencoded = utf8ToHex(v);
+        // Check for empty string
+        if (v === "") vencoded += "00";
     } else {
         vencoded = toHex(v);
     }

@@ -30,10 +30,11 @@ const SHORT_COUNT_1_BYTES = 24;
 const SHORT_COUNT_2_BYTES = 25;
 const SHORT_COUNT_4_BYTES = 26;
 const SHORT_COUNT_8_BYTES = 27;
+const SHORT_COUNT_INDEFNITE = 31;
 
 const NEGATIVE_1 = new BN(-1);
 
-describe("Primitive Decoding", function () {
+describe("CBORPrimitives.sol", function () {
     this.timeout(60_000);
 
     let decoder: CBORTesting;
@@ -42,6 +43,9 @@ describe("Primitive Decoding", function () {
     // eslint-disable-next-line camelcase
     let CBORDecodingFactory: CBORDecoding__factory;
     let ByteParserFactory: ContractFactory;
+
+    let value;
+    let encoding;
 
     before(async () => {
         CBORDecodingFactory = await ethers.getContractFactory("CBORDecoding");
@@ -56,10 +60,7 @@ describe("Primitive Decoding", function () {
         decoder = await CBORTestingFactory.deploy();
     });
 
-    describe.only("Major Type: 1 + 2", async () => {
-        let value;
-        let encoding;
-
+    describe("Major Type: 1 + 2", async () => {
         it("Unsigned Integers", async () => {
             // 0 is encoded in the shortcount
             value = 0;
@@ -188,24 +189,133 @@ describe("Primitive Decoding", function () {
                 `decoding ${value} failed!`
             );
         });
+
+        it("Invalid RFC", async () => {
+            encoding = encodeCBOR(MAJOR_TYPE_UINT, 28);
+            await expect(
+                decoder.testDecodeCBORPrimitive(encoding)
+            ).to.be.revertedWith("Invalid integer RFC Shortcode!");
+        });
     });
 
-    
+    describe.only("Major Type: 3 + 4", async () => {
+        it("Byte Strings", async () => {
+            // Test empty byte string
+            value = "";
+            encoding = encodeCBOR(
+                MAJOR_TYPE_BYTE_STRING,
+                value.length,
+                undefined,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
 
-    it("Basic primitive encoding/decoding", async function () {
-        let stringValue = "im a string";
-        assert.equal(
-            await decoder.testDecodeCBORPrimitive(cbor.encode(stringValue)),
-            toProperHex(stringValue),
-            "decoding failed!"
-        );
+            // 1 letter
+            value = "a";
+            encoding = encodeCBOR(
+                MAJOR_TYPE_BYTE_STRING,
+                value.length,
+                undefined,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
 
-        stringValue = "im a long string".repeat(100);
-        assert.equal(
-            await decoder.testDecodeCBORPrimitive(cbor.encode(stringValue)),
-            toProperHex(stringValue),
-            "decoding failed!"
-        );
+            // Max shortcount
+            value = "a".repeat(23);
+            encoding = encodeCBOR(
+                MAJOR_TYPE_BYTE_STRING,
+                value.length,
+                undefined,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+
+            // Count 1 byte long
+            value = "a".repeat(24);
+            encoding = encodeCBOR(
+                MAJOR_TYPE_BYTE_STRING,
+                SHORT_COUNT_1_BYTES,
+                value.length,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+
+            // Count 2 byte long
+            value = "a".repeat(256);
+            encoding = encodeCBOR(
+                MAJOR_TYPE_BYTE_STRING,
+                SHORT_COUNT_2_BYTES,
+                value.length,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+
+            /**
+             * NOTE: Byte strings longer than 65536 characters
+             * take too long to process and are likely to run
+             * out of gas. Since the implementation is the same
+             * for 1 bytes and 2 bytes, we can trust it works.
+             */
+
+            // Indefinite length
+            value = "a".repeat(80);
+            encoding = encodeCBOR(
+                MAJOR_TYPE_BYTE_STRING,
+                SHORT_COUNT_INDEFNITE,
+                undefined, // no count field
+                value,
+                true // end with marker
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+        });
+
+        it("UTF8 Strings", async () => {
+            // UTF8 and Ascii strings are processed with the same function.
+            // We just want to ensure the tag filtering works
+            value = "a";
+            encoding = encodeCBOR(
+                MAJOR_TYPE_UTF8_STRING,
+                value.length,
+                undefined,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+        });
+
+        it("Invalid RFC", async () => {
+            encoding = encodeCBOR(MAJOR_TYPE_UTF8_STRING, 28);
+            await expect(
+                decoder.testDecodeCBORPrimitive(encoding)
+            ).to.be.revertedWith("Invalid string RFC Shortcode!");
+        });
     });
 
     it("Mapping decoding", async function () {
