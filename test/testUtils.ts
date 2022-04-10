@@ -1,5 +1,6 @@
 import { toHex, padLeft, utf8ToHex } from "web3-utils";
 import cbor from "cbor";
+import BN from "bn.js";
 
 export function toExpectedValue(value: any) {
     /**
@@ -21,7 +22,10 @@ export function toExpectedValue(value: any) {
 
 export const toProperHex = (v: any) => {
     let vencoded;
-    if (typeof v === "object")
+    if (BN.isBN(v))
+        // Convert big integers
+        vencoded = "0x" + v.toString("hex");
+    else if (typeof v === "object")
         // Convert nested objects to cbor
         vencoded = "0x" + cbor.encode(v).toString("hex");
     else if (typeof v === "number") {
@@ -54,4 +58,13 @@ export const base2Padding = (hexString: string) => {
     } else base2Exponent = 1;
     // Return padded
     return padLeft(hexString, 2 ** base2Exponent);
+};
+
+export const maxValueForBytes = (bytes: number) => {
+    const bits = bytes * 8;
+    const exp = new BN(bits);
+    // Raise 2^exp - 1
+    const value = new BN(2).pow(exp).subn(1);
+
+    return value;
 };

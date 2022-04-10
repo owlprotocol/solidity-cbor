@@ -1,3 +1,5 @@
+/* eslint-disable node/no-missing-import */
+/* eslint-disable node/no-unpublished-import */
 import { assert, expect } from "chai";
 import { ethers } from "hardhat";
 import cbor from "cbor";
@@ -8,14 +10,30 @@ import {
     // eslint-disable-next-line camelcase
     CBORTesting__factory,
     CBORTesting,
-    // eslint-disable-next-line node/no-missing-import
 } from "../typechain";
-// eslint-disable-next-line node/no-missing-import
 import dndData from "./sampleDatasets/dndData";
-import { toExpectedValue, toProperHex } from "./testUtils";
+import { toExpectedValue, toProperHex, maxValueForBytes } from "./testUtils";
 import { ContractFactory } from "ethers/lib/ethers";
+import { encodeCBOR } from "./encodeCBORUtils";
+import BN from "bn.js";
 
-describe("CBOR Decoding", function () {
+const MAJOR_TYPE_UINT = 0;
+const MAJOR_TYPE_NEGATIVE = 1;
+const MAJOR_TYPE_BYTE_STRING = 2;
+const MAJOR_TYPE_UTF8_STRING = 3;
+const MAJOR_TYPE_ARRAY = 4;
+const MAJOR_TYPE_MAP = 5;
+const MAJOR_TYPE_SEMANTIC = 6;
+const MAJOR_TYPE_SPECIAL = 7;
+
+const SHORT_COUNT_1_BYTES = 24;
+const SHORT_COUNT_2_BYTES = 25;
+const SHORT_COUNT_4_BYTES = 26;
+const SHORT_COUNT_8_BYTES = 27;
+
+const NEGATIVE_1 = new BN(-1);
+
+describe("Primitive Decoding", function () {
     this.timeout(60_000);
 
     let decoder: CBORTesting;
@@ -38,28 +56,143 @@ describe("CBOR Decoding", function () {
         decoder = await CBORTestingFactory.deploy();
     });
 
+    describe.only("Major Type: 1 + 2", async () => {
+        let value;
+        let encoding;
+
+        it("Unsigned Integers", async () => {
+            // 0 is encoded in the shortcount
+            value = 0;
+            encoding = encodeCBOR(MAJOR_TYPE_UINT, value);
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+
+            // 1 is encoded in the shortcount
+            value = 1;
+            encoding = encodeCBOR(MAJOR_TYPE_UINT, value);
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+
+            // 255 takes up 1 byte
+            value = maxValueForBytes(1);
+            encoding = encodeCBOR(MAJOR_TYPE_UINT, SHORT_COUNT_1_BYTES, value);
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+
+            // 65535 takes up 2 byte(s)
+            value = maxValueForBytes(2);
+            encoding = encodeCBOR(MAJOR_TYPE_UINT, SHORT_COUNT_2_BYTES, value);
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+
+            // 4294967295 takes up 4 byte(s)
+            value = maxValueForBytes(4);
+            encoding = encodeCBOR(MAJOR_TYPE_UINT, SHORT_COUNT_4_BYTES, value);
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+
+            // 18446744073709551615 takes up 8 byte(s)
+            value = maxValueForBytes(8);
+            encoding = encodeCBOR(MAJOR_TYPE_UINT, SHORT_COUNT_8_BYTES, value);
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(value),
+                `decoding ${value} failed!`
+            );
+        });
+
+        it("Negative Integers", async () => {
+            // NOTE: CBOR negative values are represented as (-1 - UINT)
+            // -1 is encoded in the shortcount
+            value = -1;
+            encoding = encodeCBOR(MAJOR_TYPE_NEGATIVE, value);
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(-1 - value),
+                `decoding ${value} failed!`
+            );
+
+            // -2 is encoded in the shortcount
+            value = -2;
+            encoding = encodeCBOR(MAJOR_TYPE_NEGATIVE, value);
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(-1 - value),
+                `decoding ${value} failed!`
+            );
+
+            // -256 takes up 1 byte -((2^8) - 1 + 1)
+            value = maxValueForBytes(1).addn(1).muln(-1);
+            encoding = encodeCBOR(
+                MAJOR_TYPE_NEGATIVE,
+                SHORT_COUNT_1_BYTES,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(NEGATIVE_1.sub(value)),
+                `decoding ${value} failed!`
+            );
+
+            // 65535 takes up 2 byte(s)
+            value = maxValueForBytes(2).addn(1).muln(-1);
+            encoding = encodeCBOR(
+                MAJOR_TYPE_NEGATIVE,
+                SHORT_COUNT_2_BYTES,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(NEGATIVE_1.sub(value)),
+                `decoding ${value} failed!`
+            );
+
+            // 4294967295 takes up 4 byte(s)
+            value = maxValueForBytes(4).addn(1).muln(-1);
+            encoding = encodeCBOR(
+                MAJOR_TYPE_NEGATIVE,
+                SHORT_COUNT_4_BYTES,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(NEGATIVE_1.sub(value)),
+                `decoding ${value} failed!`
+            );
+
+            // 18446744073709551615 takes up 8 byte(s)
+            value = maxValueForBytes(8).addn(1).muln(-1);
+            encoding = encodeCBOR(
+                MAJOR_TYPE_NEGATIVE,
+                SHORT_COUNT_8_BYTES,
+                value
+            );
+            assert.equal(
+                await decoder.testDecodeCBORPrimitive(encoding),
+                toProperHex(NEGATIVE_1.sub(value)),
+                `decoding ${value} failed!`
+            );
+        });
+    });
+
+    
+
     it("Basic primitive encoding/decoding", async function () {
-        let value = -1;
-        assert.equal(
-            await decoder.testDecodeCBORPrimitive(cbor.encode(value)),
-            toProperHex(-1 - value),
-            "decoding failed!"
-        );
-
-        value = 100_000;
-        assert.equal(
-            await decoder.testDecodeCBORPrimitive(cbor.encode(value)),
-            toProperHex(value),
-            "decoding failed!"
-        );
-
-        value = -100;
-        assert.equal(
-            await decoder.testDecodeCBORPrimitive(cbor.encode(value)),
-            toProperHex(-1 - value),
-            "decoding failed!"
-        );
-
         let stringValue = "im a string";
         assert.equal(
             await decoder.testDecodeCBORPrimitive(cbor.encode(stringValue)),
@@ -230,4 +363,3 @@ describe("CBOR Decoding", function () {
         }
     });
 });
-
