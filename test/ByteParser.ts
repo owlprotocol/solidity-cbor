@@ -15,7 +15,7 @@ import {
 // eslint-disable-next-line node/no-missing-import
 import { ContractFactory } from "ethers/lib/ethers";
 
-describe("CBOR Data Parsing", function () {
+describe("ByteParser.sol", function () {
     this.timeout(60_000);
 
     let decoder: CBORTesting;
