@@ -30,4 +30,5 @@ jobs:
       - run: npm set //npm.pkg.github.com/:_authToken=${{secrets.GPR_TOKEN}}
       # Install
       - run: pnpm i
+      - run: npm run compile
       - run: npm run test
