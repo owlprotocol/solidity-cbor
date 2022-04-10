@@ -9,7 +9,11 @@ import {
     CBORTesting__factory,
     CBORTesting,
 } from "../typechain";
-import { toProperHex, maxValueForBytes, toExpectedValue } from "./helpers/testUtils";
+import {
+    toProperHex,
+    maxValueForBytes,
+    toExpectedValue,
+} from "./helpers/testUtils";
 import { ContractFactory } from "ethers/lib/ethers";
 import { encodeCBOR } from "./helpers/encodeCBORUtils";
 import BN from "bn.js";
@@ -35,7 +39,6 @@ const SPECIAL_TYPE_FALSE = 20;
 const SPECIAL_TYPE_TRUE = 21;
 const SPECIAL_TYPE_NULL = 22;
 const SPECIAL_TYPE_UNDEFINED = 23;
-
 
 describe("CBORPrimitives.sol", function () {
     this.timeout(60_000);
@@ -390,7 +393,6 @@ describe("CBORPrimitives.sol", function () {
     });
 
     describe("Major Types: 7", async () => {
-
         const FALSE = toProperHex(0);
         const TRUE = toProperHex(1);
 

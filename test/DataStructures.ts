@@ -1,9 +1,8 @@
 /* eslint-disable node/no-missing-import */
 /* eslint-disable node/no-unpublished-import */
-import { assert, expect } from "chai";
+import { expect } from "chai";
 import { ethers } from "hardhat";
 import cbor from "cbor";
-import { toHex } from "web3-utils";
 import {
     // eslint-disable-next-line camelcase
     CBORDecoding__factory,
@@ -15,15 +14,14 @@ import dndData from "./sampleDatasets/dndData";
 import { toExpectedValue, listToMapping } from "./helpers/testUtils";
 import { ContractFactory } from "ethers/lib/ethers";
 import { encodeCBOR } from "./helpers/encodeCBORUtils";
-import BN from "bn.js";
 
 const MAJOR_TYPE_ARRAY = 4;
 const MAJOR_TYPE_MAPPING = 5;
 
 const SHORT_COUNT_1_BYTES = 24;
 const SHORT_COUNT_2_BYTES = 25;
-const SHORT_COUNT_4_BYTES = 26;
-const SHORT_COUNT_8_BYTES = 27;
+// const SHORT_COUNT_4_BYTES = 26;
+// const SHORT_COUNT_8_BYTES = 27;
 const SHORT_COUNT_INDEFNITE = 31;
 
 describe("CBORDataStructures.sol", function () {
@@ -40,7 +38,6 @@ describe("CBORDataStructures.sol", function () {
     let encoding;
     let packedEncoding;
     let decoded;
-    let call;
 
     before(async () => {
         CBORDecodingFactory = await ethers.getContractFactory("CBORDecoding");
