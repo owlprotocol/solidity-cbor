@@ -26,6 +26,7 @@ specifiers:
   eslint-plugin-node: ^11.1.0
   eslint-plugin-prettier: ^3.4.1
   eslint-plugin-promise: ^5.2.0
+  eth-gas-reporter: ^0.2.25
   ethereum-waffle: ^3.4.0
   ethers: ^5.6.1
   hardhat: ^2.9.1
@@ -69,6 +70,7 @@ devDependencies:
   eslint-plugin-node: 11.1.0_eslint@7.32.0
   eslint-plugin-prettier: 3.4.1_851bc24bb95bfee8fc2681dc386b408c
   eslint-plugin-promise: 5.2.0_eslint@7.32.0
+  eth-gas-reporter: 0.2.25
   ethereum-waffle: 3.4.0_typescript@4.6.2
   ethers: 5.6.1
   hardhat: 2.9.1
@@ -677,6 +679,14 @@ packages:
       tweetnacl-util: 0.15.1
     dev: true
 
+  /@noble/hashes/1.0.0:
+    resolution: {integrity: sha512-DZVbtY62kc3kkBtMHqwCOfXrT/hnoORy5BJ4+HU1IR59X0KWAOqsfzQPcUl/lQLlG7qXbe/fZ3r/emxtAl+sqg==}
+    dev: true
+
+  /@noble/secp256k1/1.5.5:
+    resolution: {integrity: sha512-sZ1W6gQzYnu45wPrWx8D3kwI2/U29VYTx9OjbDAd7jwRItJ0cSTMPRL/C8AWZFn9kWFLQGqEXVEE86w4Z8LpIQ==}
+    dev: true
+
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -822,6 +832,25 @@ packages:
       hosted-git-info: 2.8.9
       path-browserify: 1.0.1
       url: 0.11.0
+    dev: true
+
+  /@scure/base/1.0.0:
+    resolution: {integrity: sha512-gIVaYhUsy+9s58m/ETjSJVKHhKTBMmcRb9cEV5/5dwvfDlfORjKrFsDeDHWRrm6RjcPvCLZFwGJjAjLj1gg4HA==}
+    dev: true
+
+  /@scure/bip32/1.0.1:
+    resolution: {integrity: sha512-AU88KKTpQ+YpTLoicZ/qhFhRRIo96/tlb+8YmDDHR9yiKVjSsFZiefJO4wjS2PMTkz5/oIcw84uAq/8pleQURA==}
+    dependencies:
+      '@noble/hashes': 1.0.0
+      '@noble/secp256k1': 1.5.5
+      '@scure/base': 1.0.0
+    dev: true
+
+  /@scure/bip39/1.0.0:
+    resolution: {integrity: sha512-HrtcikLbd58PWOkl02k9V6nXWQyoa7A0+Ek9VF7z17DDk9XZAFUcIdqfh0jJXLypmizc5/8P6OxoUeKliiWv4w==}
+    dependencies:
+      '@noble/hashes': 1.0.0
+      '@scure/base': 1.0.0
     dev: true
 
   /@sentry/core/5.30.0:
@@ -2356,12 +2385,6 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /bindings/1.5.0:
-    resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
-    dependencies:
-      file-uri-to-path: 1.0.0
-    dev: true
-
   /bip39/2.5.0:
     resolution: {integrity: sha512-xwIx/8JKoT2+IPJpFEfXoWdYwP7UVAoUxxLNfGCfVowaJE7yg1Y5B1BVPqlUNsBq5/nGwmFkwRJ8xDW4sX8OdA==}
     dependencies:
@@ -2370,12 +2393,6 @@ packages:
       randombytes: 2.1.0
       safe-buffer: 5.2.1
       unorm: 1.6.0
-    dev: true
-
-  /bip66/1.1.5:
-    resolution: {integrity: sha1-AfqHSHhcpwlV1QESF9GzE5lpyiI=}
-    dependencies:
-      safe-buffer: 5.2.1
     dev: true
 
   /blakejs/1.1.2:
@@ -3475,15 +3492,6 @@ packages:
       minimatch: 3.1.2
     dev: true
 
-  /drbg.js/1.0.1:
-    resolution: {integrity: sha1-Pja2xCs3BDgjzbwzLVjzHiRFSAs=}
-    engines: {node: '>=0.10'}
-    dependencies:
-      browserify-aes: 1.2.0
-      create-hash: 1.2.0
-      create-hmac: 1.1.7
-    dev: true
-
   /duplexer3/0.1.4:
     resolution: {integrity: sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=}
 
@@ -4013,8 +4021,8 @@ packages:
       idna-uts46-hx: 2.3.1
       js-sha3: 0.5.7
 
-  /eth-gas-reporter/0.2.24:
-    resolution: {integrity: sha512-RbXLC2bnuPHzIMU/rnLXXlb6oiHEEKu7rq2UrAX/0mfo0Lzrr/kb9QTjWjfz8eNvc+uu6J8AuBwI++b+MLNI2w==}
+  /eth-gas-reporter/0.2.25:
+    resolution: {integrity: sha512-1fRgyE4xUB8SoqLgN3eDfpDfwEfRxh2Sz1b7wzFbyQA+9TekMmvSjjoRu9SKcSVyK+vLkLIsVbJDsTWjw195OQ==}
     peerDependencies:
       '@codechecks/client': ^0.1.0
     peerDependenciesMeta:
@@ -4025,7 +4033,7 @@ packages:
       '@solidity-parser/parser': 0.14.1
       cli-table3: 0.5.1
       colors: 1.4.0
-      ethereumjs-util: 6.2.0
+      ethereum-cryptography: 1.0.3
       ethers: 4.0.49
       fs-readdir-recursive: 1.1.0
       lodash: 4.17.21
@@ -4174,6 +4182,15 @@ packages:
       secp256k1: 4.0.3
       setimmediate: 1.0.5
 
+  /ethereum-cryptography/1.0.3:
+    resolution: {integrity: sha512-NQLTW0x0CosoVb/n79x/TRHtfvS3hgNUPTUSCu0vM+9k6IIhHFFrAOJReneexjZsoZxMjJHnJn4lrE8EbnSyqQ==}
+    dependencies:
+      '@noble/hashes': 1.0.0
+      '@noble/secp256k1': 1.5.5
+      '@scure/bip32': 1.0.1
+      '@scure/bip39': 1.0.0
+    dev: true
+
   /ethereum-ens/0.8.0:
     resolution: {integrity: sha512-a8cBTF4AWw1Q1Y37V1LSCS9pRY4Mh3f8vCg5cbXCCEJ3eno1hbI/+Ccv9SZLISYpqQhaglP3Bxb/34lS4Qf7Bg==}
     dependencies:
@@ -4313,18 +4330,6 @@ packages:
       ethjs-util: 0.1.6
       rlp: 2.2.7
       safe-buffer: 5.2.1
-    dev: true
-
-  /ethereumjs-util/6.2.0:
-    resolution: {integrity: sha512-vb0XN9J2QGdZGIEKG2vXM+kUdEivUfU6Wmi5y0cg+LRhDYKnXIZ/Lz7XjFbHRR9VIKq2lVGLzGBkA++y2nOdOQ==}
-    dependencies:
-      '@types/bn.js': 4.11.6
-      bn.js: 4.12.0
-      create-hash: 1.2.0
-      ethjs-util: 0.1.6
-      keccak: 2.1.0
-      rlp: 2.2.7
-      secp256k1: 3.8.0
     dev: true
 
   /ethereumjs-util/6.2.1:
@@ -4662,10 +4667,6 @@ packages:
     engines: {node: ^10.12.0 || >=12.0.0}
     dependencies:
       flat-cache: 3.0.4
-    dev: true
-
-  /file-uri-to-path/1.0.0:
-    resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
     dev: true
 
   /fill-range/4.0.0:
@@ -5069,7 +5070,7 @@ packages:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.0.4
+      minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
     dev: true
@@ -5223,7 +5224,7 @@ packages:
       hardhat: ^2.0.2
     dependencies:
       array-uniq: 1.0.3
-      eth-gas-reporter: 0.2.24
+      eth-gas-reporter: 0.2.25
       hardhat: 2.9.1
       sha1: 1.1.1
     transitivePeerDependencies:
@@ -6141,17 +6142,6 @@ packages:
       json-schema: 0.4.0
       verror: 1.10.0
 
-  /keccak/2.1.0:
-    resolution: {integrity: sha512-m1wbJRTo+gWbctZWay9i26v5fFnYkOn7D5PCxJ3fZUGUEb49dE1Pm4BREUYCt/aoO6di7jeoGmhvqN9Nzylm3Q==}
-    engines: {node: '>=5.12.0'}
-    requiresBuild: true
-    dependencies:
-      bindings: 1.5.0
-      inherits: 2.0.4
-      nan: 2.15.0
-      safe-buffer: 5.2.1
-    dev: true
-
   /keccak/3.0.2:
     resolution: {integrity: sha512-PyKKjkH53wDMLGrvmRGSNWgmSxZOUqbnXwKL9tmgbFYA1iAYqW21kfR7mZXV0MlESiefxQQE9X9fTa3X+2MPDQ==}
     engines: {node: '>=10.0.0'}
@@ -6936,10 +6926,6 @@ packages:
 
   /mute-stream/0.0.7:
     resolution: {integrity: sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s=}
-    dev: true
-
-  /nan/2.15.0:
-    resolution: {integrity: sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==}
     dev: true
 
   /nano-base32/1.0.1:
@@ -8225,21 +8211,6 @@ packages:
       pbkdf2: 3.1.2
     dev: true
     optional: true
-
-  /secp256k1/3.8.0:
-    resolution: {integrity: sha512-k5ke5avRZbtl9Tqx/SA7CbY3NF6Ro+Sj9cZxezFzuBlLDmyqPiL8hJJ+EmzD8Ig4LUDByHJ3/iPOVoRixs/hmw==}
-    engines: {node: '>=4.0.0'}
-    requiresBuild: true
-    dependencies:
-      bindings: 1.5.0
-      bip66: 1.1.5
-      bn.js: 4.12.0
-      create-hash: 1.2.0
-      drbg.js: 1.0.1
-      elliptic: 6.5.4
-      nan: 2.15.0
-      safe-buffer: 5.2.1
-    dev: true
 
   /secp256k1/4.0.3:
     resolution: {integrity: sha512-NLZVf+ROMxwtEj3Xa562qgv2BK5e2WNmXPiOdVIPLgs6lyTzMvBq0aWTYMI5XCP9jZMVKOcqZLw/Wc4vDkuxhA==}
