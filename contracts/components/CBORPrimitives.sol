@@ -161,19 +161,20 @@ library CBORPrimitives {
         dataEnd = dataStart;
 
         // Predetermined sizes
-        if (shortCount < 20)
-            revert("Invalid RFC Shortcode!");
-        if (shortCount >= 20 && shortCount <= 23)
+        if (shortCount <= 19 || shortCount >= 28)
+            revert("Invalid special RFC Shortcount!");
+        else if (shortCount >= 20 && shortCount <= 23)
             // 20-23 are false, true, null, and undefined (respectively).
             // There's no extra data to grab.
             return (cursor, cursor);
-        else if (shortCount == 24) dataEnd += 1;
-        else if (shortCount == 25) dataEnd += 2;
-        else if (shortCount == 26) dataEnd += 4;
-        else if (shortCount == 27) dataEnd += 8;
-        else if (shortCount >= 28)
-            revert("Invalid RFC Shortcode!");
+        else if (shortCount >= 24 && shortCount <= 27)
+            revert("Unimplemented Shortcount!");
+        // NOTE: - floats could be implemented in the future if needed
+        // else if (shortCount == 24) dataEnd += 1;
+        // else if (shortCount == 25) dataEnd += 2;
+        // else if (shortCount == 26) dataEnd += 4;
+        // else if (shortCount == 27) dataEnd += 8;
 
-        return (dataStart, dataEnd);
+        // return (dataStart, dataEnd);
     }
 }
