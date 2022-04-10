@@ -11,7 +11,7 @@ export const encodeCBOR = (
     majorType: number,
     shortCount: number,
     count?: number | BN,
-    variable?: number | BN | string,
+    variable?: number | BN | string | Buffer,
     endWithMarker: boolean = false
 ) => {
     const values = [];
@@ -63,11 +63,14 @@ const encodeExtendedCount = (count: number | BN) => {
     return encoding.toBuffer();
 };
 
-const encodeVariable = (value: number | string | BN) => {
+const encodeVariable = (value: number | string | BN | Buffer) => {
     // Type checks
     if (typeof value === "number") value = new BN(value, BASE10);
+    // Strings
     else if (typeof value === "string")
         value = new BN(toProperHex(value).slice(2), "hex");
+    // Allow buffers to be passed in directly
+    else if (Buffer.isBuffer(value)) return value;
 
     return value.toBuffer();
 };

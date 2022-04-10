@@ -70,3 +70,14 @@ export const maxValueForBytes = (bytes: number) => {
 
     return value;
 };
+
+export const listToMapping = (values: any[]) => {
+    // eslint-disable-next-line no-throw-literal
+    if (values.length % 2 !== 0) throw "Not divisible by 2!";
+
+    const obj = {};
+    // @ts-ignore
+    for (let k = 0; k < values.length; k += 2) obj[values[k]] = values[k + 1];
+
+    return obj;
+};
