@@ -1,46 +1,70 @@
-# Advanced Sample Hardhat Project
+# Solidity CBOR Library
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+Concise Binary Object Representation (CBOR) allows data structures and values to be easily
+represented in a minimal binary format.
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+This library allows for decoding and parsing of CBOR-encoded data.
 
-Try running some of the following tasks:
+CBOR is self-describing, meaning that any CBOR-encoded data passed in can be parsed. There's an
+additional helper contract `ByteParser` that performs type casting on decoded CBOR values so they
+can be used within your application logic.
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.ts
-TS_NODE_FILES=true npx ts-node scripts/deploy.ts
-npx eslint '**/*.{js,ts}'
-npx eslint '**/*.{js,ts}' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
+## How do I encode data into CBOR?
+
+Lucky for you, there's already librarys dedicated to this! Have a look at
+[this page](https://cbor.io/impls.html) for a quick overview.
+
+For example, with NodeJS:
+
+```javascript
+> const cbor = require('cbor');
+> const myData = {a: '1', b: '2', c: [3,4,5]};
+> cbor.encode(myData).toString('hex');
+// Your CBOR-encoded data:
+'a36161613161626132616383030405'
+```
+## What's it for?
+
+Suppose you have some player data you want to use for an in-game NFT:
+
+```json
+{
+    name: "Alice",
+    wallet: "0x00000000000000000000000000000001",
+    score: 10,
+    alive: true
+}
 ```
 
-# Etherscan verification
+To keep players honest and unable to forge high scores, we'll use a hash of the data entry
+to verify it's authoritative (i.e. with a MerkleTree, like how [Uniswap performs airdrops](https://github.com/Uniswap/merkle-distributor)).
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+Once the entire record has been verified as authoritative, it's possible to parse out specific fields:
 
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+```C++
+/**
+ * Assert record.wallet === msg.sender:
+ */
 
-```shell
-hardhat run --network ropsten scripts/deploy.ts
+// Extract the `wallet` field from CBOR
+bytes memory walletBytes = CBORDecoding.decodeMappingGetValue(proof, "wallet");
+// Type cast the bytes to an address
+address walletAddress = ByteUtils.parseAddr(walletBytes);
+// Verify the caller is the record owner
+require(msg.sender == walletAddress);
+
+/**
+ * Assert record.score > highScore:
+ */
+
+// Extract the `score` field from CBOR
+bytes memory scoreBytes = CBORDecoding.decodeMappingGetValue(proof, "score");
+// Type cast the bytes to a uint256
+uint256 score = ByteUtils.bytesToUint256(scoreBytes);
+// Verify the score submitted is higher
+require(score > HIGH_SCORE);
 ```
 
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
+See [this contract](https://github.com/owlprotocol/react-snake-game/blob/develop/solidity/contracts/SnakeGameRewards.sol) for a real contract example.
 
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
-
-# Performance optimizations
-
-For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
+## Usage
