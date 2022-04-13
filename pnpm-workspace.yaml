@@ -1,0 +1,3 @@
+packages:
+  - "packages/solidity-cbor"
+  - "packages/solidity-cbor-docs"

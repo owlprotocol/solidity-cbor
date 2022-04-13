@@ -31,6 +31,8 @@ SOFTWARE.
 
 */
 
+import "@ensdomains/buffer/contracts/Buffer.sol";
+
 library CBOR {
     using Buffer for Buffer.buffer;
 
