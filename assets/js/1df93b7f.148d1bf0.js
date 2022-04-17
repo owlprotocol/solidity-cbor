@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksolidity_cbor_docs=self.webpackChunksolidity_cbor_docs||[]).push([[237],{6491:(e,c,r)=>{r.r(c),r.d(c,{default:()=>a});var s=r(9901),t=(r(8235),r(6966),r(2455));var o=r(330);function a(){var e=(0,o.Z)("/docs");return s.createElement(t.l_,{to:e})}}}]);
