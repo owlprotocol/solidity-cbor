@@ -1,9 +1,13 @@
-# Solidity CBOR Library
+---
+sidebar_position: 1
+slug: '/'
+---
 
-## TLDR
+# Welcome
 
-Check out the Quickstart - https://owlprotocol.github.io/solidity-cbor/docs/quickstart
-## Overview
+[![NPM Package Version][npm-image-version]][npm-url]
+[![NPM Package Downloads][npm-image-downloads]][npm-url]
+<!-- ![web3-redux-1024x256.svg](/img/web3-redux-1024x256.svg) -->
 
 A Solidity library designed to allow for decoding complex data structures in Solidity. Think "JSON Parser" but leveraging the Compact Binary Object Representation (CBOR) for more efficiency.
 
@@ -70,3 +74,9 @@ require(score > HIGH_SCORE);
 ```
 
 See [this contract](https://github.com/owlprotocol/react-snake-game/blob/develop/solidity/contracts/SnakeGameRewards.sol) for a real contract example.
+
+[repo]: https://github.com/owlprotocol/web3-redux
+[gh-page]: https://owlprotocol.github.io/web3-redux/
+[npm-image-version]: https://img.shields.io/npm/v/@owlprotocol/web3-redux.svg
+[npm-image-downloads]: https://img.shields.io/npm/dm/@owlprotocol/web3-redux.svg
+[npm-url]: https://npmjs.org/package/@owlprotocol/web3-redux

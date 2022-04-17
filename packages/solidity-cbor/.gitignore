@@ -23,3 +23,10 @@ yarn.lock
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+coverage.json
+typechain
+
+#Hardhat files
+cache
+artifacts
