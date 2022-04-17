@@ -35,6 +35,7 @@
     "prettier-plugin-solidity": "^1.0.0-beta.13",
     "solhint": "^3.3.7",
     "solidity-coverage": "^0.7.20",
+    "solidity-docgen": "^0.6.0-beta.8",
     "ts-node": "^10.7.0",
     "typechain": "^5.2.0",
     "typescript": "^4.6.2",
@@ -45,7 +46,8 @@
     "test": "hardhat test",
     "compile": "hardhat compile",
     "clean": "hardhat clean",
-    "benchmark": "BENCHMARK=true REPORT_GAS=true pnpm hardhat test"
+    "benchmark": "BENCHMARK=true REPORT_GAS=true pnpm hardhat test",
+    "docs": "DOCS=../solidity-cbor-docs/docs/contract-docs && rm $DOCS/* && hardhat docgen && for f in $DOCS/*; do mv \"$f\" \"$f.md\"; done && echo '# Solidity Reference' > $DOCS/index.md"
   },
   "dependencies": {
     "@truffle/contract": "^4.5.1"

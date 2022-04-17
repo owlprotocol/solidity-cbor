@@ -1,7 +1,6 @@
 # Solidity CBOR Library
 
-Concise Binary Object Representation (CBOR) allows data structures and values to be easily
-represented in a minimal binary format.
+A Solidity library designed to allow for decoding complex data structures in Solidity. Think "JSON Parser" but leveraging the Compact Binary Object Representation (CBOR) for more efficiency.
 
 This library allows for decoding and parsing of CBOR-encoded data.
 
@@ -66,5 +65,3 @@ require(score > HIGH_SCORE);
 ```
 
 See [this contract](https://github.com/owlprotocol/react-snake-game/blob/develop/solidity/contracts/SnakeGameRewards.sol) for a real contract example.
-
-## Usage
