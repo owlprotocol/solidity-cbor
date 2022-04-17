@@ -12,6 +12,8 @@
     "clean:node_modules": "rimraf packages/*/node_modules",
     "postinstall": "husky install && npm run build",
     "lint:staged": "echo 'No lint script'",
+    "compile": "npm-run-all -p compile:solidity-cbor",
+    "compile:solidity-cbor": "cd packages/solidity-cbor && npm run compile",
     "test": "npm-run-all -p test:solidity-cbor",
     "test:solidity-cbor": "cd packages/solidity-cbor && npm run test",
     "benchmark": "cd packages/solidity-cbor && npm run benchmark"
