@@ -11,7 +11,7 @@ const config = {
     url: 'https://owlprotocol.github.io',
     baseUrl: '/solidity-cbor/',
     deploymentBranch: 'gh-pages',
-    onBrokenLinks: 'throw',
+    onBrokenLinks: 'warn',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
     organizationName: 'owlprotocol', // Usually your GitHub org/user name.

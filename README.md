@@ -1,5 +1,10 @@
 # Solidity CBOR Library
 
+## TLDR
+
+Check out the Quickstart - https://owlprotocol.github.io/solidity-cbor/docs/quickstart
+## Overview
+
 A Solidity library designed to allow for decoding complex data structures in Solidity. Think "JSON Parser" but leveraging the Compact Binary Object Representation (CBOR) for more efficiency.
 
 This library allows for decoding and parsing of CBOR-encoded data.
