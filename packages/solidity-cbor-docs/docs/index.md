@@ -57,7 +57,7 @@ Once the entire record has been verified as authoritative, it's possible to pars
 // Extract the `wallet` field from CBOR
 bytes memory walletBytes = CBORDecoding.decodeMappingGetValue(proof, "wallet");
 // Type cast the bytes to an address
-address walletAddress = ByteUtils.parseAddr(walletBytes);
+address walletAddress = ByteParser.parseAddr(walletBytes);
 // Verify the caller is the record owner
 require(msg.sender == walletAddress);
 
@@ -68,15 +68,15 @@ require(msg.sender == walletAddress);
 // Extract the `score` field from CBOR
 bytes memory scoreBytes = CBORDecoding.decodeMappingGetValue(proof, "score");
 // Type cast the bytes to a uint256
-uint256 score = ByteUtils.bytesToUint256(scoreBytes);
+uint256 score = ByteParser.bytesToBigNumber(scoreBytes);
 // Verify the score submitted is higher
 require(score > HIGH_SCORE);
 ```
 
 See [this contract](https://github.com/owlprotocol/react-snake-game/blob/develop/solidity/contracts/SnakeGameRewards.sol) for a real contract example.
 
-[repo]: https://github.com/owlprotocol/web3-redux
-[gh-page]: https://owlprotocol.github.io/web3-redux/
-[npm-image-version]: https://img.shields.io/npm/v/@owlprotocol/web3-redux.svg
-[npm-image-downloads]: https://img.shields.io/npm/dm/@owlprotocol/web3-redux.svg
-[npm-url]: https://npmjs.org/package/@owlprotocol/web3-redux
+[repo]: https://github.com/owlprotocol/solidity-cbor
+[gh-page]: https://owlprotocol.github.io/solidity-cbor/
+<!-- [npm-image-version]: https://img.shields.io/npm/v/@owlprotocol/web3-redux.svg -->
+<!-- [npm-image-downloads]: https://img.shields.io/npm/dm/@owlprotocol/web3-redux.svg -->
+<!-- [npm-url]: https://npmjs.org/package/@owlprotocol/web3-redux -->

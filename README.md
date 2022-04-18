@@ -3,7 +3,16 @@
 ## TLDR
 
 Check out the Quickstart - https://owlprotocol.github.io/solidity-cbor/docs/quickstart
-## Overview
+---
+sidebar_position: 1
+slug: '/'
+---
+
+# Welcome
+
+[![NPM Package Version][npm-image-version]][npm-url]
+[![NPM Package Downloads][npm-image-downloads]][npm-url]
+<!-- ![web3-redux-1024x256.svg](/img/web3-redux-1024x256.svg) -->
 
 A Solidity library designed to allow for decoding complex data structures in Solidity. Think "JSON Parser" but leveraging the Compact Binary Object Representation (CBOR) for more efficiency.
 
@@ -53,7 +62,7 @@ Once the entire record has been verified as authoritative, it's possible to pars
 // Extract the `wallet` field from CBOR
 bytes memory walletBytes = CBORDecoding.decodeMappingGetValue(proof, "wallet");
 // Type cast the bytes to an address
-address walletAddress = ByteUtils.parseAddr(walletBytes);
+address walletAddress = ByteParser.parseAddr(walletBytes);
 // Verify the caller is the record owner
 require(msg.sender == walletAddress);
 
@@ -64,7 +73,7 @@ require(msg.sender == walletAddress);
 // Extract the `score` field from CBOR
 bytes memory scoreBytes = CBORDecoding.decodeMappingGetValue(proof, "score");
 // Type cast the bytes to a uint256
-uint256 score = ByteUtils.bytesToUint256(scoreBytes);
+uint256 score = ByteParser.bytesToBigNumber(scoreBytes);
 // Verify the score submitted is higher
 require(score > HIGH_SCORE);
 ```
