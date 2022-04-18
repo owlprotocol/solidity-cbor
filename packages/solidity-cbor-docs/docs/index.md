@@ -5,8 +5,8 @@ slug: '/'
 
 # Welcome
 
-[![NPM Package Version][npm-image-version]][npm-url]
-[![NPM Package Downloads][npm-image-downloads]][npm-url]
+<!-- [![NPM Package Version][npm-image-version]][npm-url] -->
+<!-- [![NPM Package Downloads][npm-image-downloads]][npm-url] -->
 <!-- ![web3-redux-1024x256.svg](/img/web3-redux-1024x256.svg) -->
 
 A Solidity library designed to allow for decoding complex data structures in Solidity. Think "JSON Parser" but leveraging the Compact Binary Object Representation (CBOR) for more efficiency.
