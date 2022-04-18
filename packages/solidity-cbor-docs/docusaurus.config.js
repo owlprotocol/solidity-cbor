@@ -56,7 +56,7 @@ const config = {
         /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
             navbar: {
-                title: 'Web3 Redux',
+                title: 'Solidity CBOR',
                 logo: {
                     alt: 'Web3 Redux Logo',
                     src: 'img/logo.svg',
