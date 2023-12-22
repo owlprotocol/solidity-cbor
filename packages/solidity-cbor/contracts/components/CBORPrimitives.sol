@@ -61,7 +61,7 @@ library CBORPrimitives {
         bytes memory encoding,
         uint cursor,
         uint shortCount
-    ) internal pure returns (
+    ) internal view returns (
         uint dataStart,
         uint dataEnd
     ) {
