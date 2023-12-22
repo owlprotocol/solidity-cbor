@@ -16,22 +16,19 @@ library CBORDataStructures {
     /**
      * @dev Parses a CBOR-encoded mapping into a 2d-array of bytes.
      * @param encoding the dynamic bytes array to scan
-     * @param cursor position where mapping starts (in bytes)
-     * @param shortCount short data identifier included in field info
+     * @param mappingCursor position where mapping starts (in bytes)
+     * @param initialShortCount short data identifier included in field info
      * @return decodedMapping the mapping decoded
      */
     function expandMapping(
         bytes memory encoding,
-        uint cursor,
-        uint8 shortCount
+        uint mappingCursor,
+        uint8 initialShortCount
     ) internal view returns (
         bytes[2][] memory decodedMapping
     ) {
-        // Track our mapping start
-        uint256 mappingCursor = cursor;
-
         // Count up how many keys we have, set cursor
-        (uint totalItems, uint dataStart, ) = getDataStructureItemLength(encoding, mappingCursor, Spec.MajorType.Map, shortCount);
+        (uint totalItems, uint dataStart, ) = getDataStructureItemLength(encoding, mappingCursor, Spec.MajorType.Map, initialShortCount);
         require(totalItems % 2 == 0, "Invalid mapping provided!");
         mappingCursor = dataStart;
 
@@ -43,13 +40,13 @@ library CBORDataStructures {
 
             // Determine the array we're modifying
             uint arrayIdx = item % 2; // Alternates 0,1,0,1,...
-            uint pair = item / 2; // 0,0,1,1,2,2..
+            uint pairIdx = item / 2; // 0,0,1,1,2,2..
 
             // See what our field looks like
-            (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, mappingCursor);
+            (Spec.MajorType fieldMajorType, uint8 fieldShortCount, uint start, uint end, uint next) = Utils.parseField(encoding, mappingCursor);
 
             // Save our data
-            decodedMapping[pair][arrayIdx] = Utils.extractValue(encoding, majorType, shortCount, start, end);
+            decodedMapping[pairIdx][arrayIdx] = Utils.extractValue(encoding, fieldMajorType, fieldShortCount, start, end);
 
             // Update our cursor
             mappingCursor = next;
@@ -62,22 +59,19 @@ library CBORDataStructures {
     /**
      * @dev Parses a CBOR-encoded array into an array of bytes.
      * @param encoding the dynamic bytes array to scan
-     * @param cursor position where array starts (in bytes)
-     * @param shortCount short data identifier included in field info
+     * @param arrayCursor position where array starts (in bytes)
+     * @param initialShortCount short data identifier included in field info
      * @return decodedArray the array decoded
      */
     function expandArray(
         bytes memory encoding,
-        uint cursor,
-        uint8 shortCount
+        uint arrayCursor,
+        uint8 initialShortCount
     ) internal view returns (
         bytes[] memory decodedArray
     ) {
-        // Track our array start
-        uint arrayCursor = cursor;
-
         // Count up how many keys we have, set cursor
-        (uint totalItems, uint dataStart, ) = getDataStructureItemLength(encoding, arrayCursor, Spec.MajorType.Array, shortCount);
+        (uint totalItems, uint dataStart, ) = getDataStructureItemLength(encoding, arrayCursor, Spec.MajorType.Array, initialShortCount);
         arrayCursor = dataStart;
 
         // Allocate new array
@@ -87,10 +81,10 @@ library CBORDataStructures {
         for (uint item = 0; item < totalItems; item++) {
 
             // See what our field looks like
-            (Spec.MajorType majorType, uint8 shortCount, uint start, uint end, uint next) = Utils.parseField(encoding, arrayCursor);
+            (Spec.MajorType fieldMajorType, uint8 fieldShortCount, uint start, uint end, uint next) = Utils.parseField(encoding, arrayCursor);
 
             // Save our data
-            decodedArray[item] = Utils.extractValue(encoding, majorType, shortCount, start, end);
+            decodedArray[item] = Utils.extractValue(encoding, fieldMajorType, fieldShortCount, start, end);
 
             // Update our cursor
             arrayCursor = next;
